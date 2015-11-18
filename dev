@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+function choice {
+    CHOICE=''
+    local prompt="$*"
+    local answer
+    read -p "$prompt" answer
+    case "$answer" in
+        [yY1] ) CHOICE='y';;
+        [nN0] ) CHOICE='n';;
+        *     ) CHOICE="$answer";;
+    esac
+} # end of function choice
+
+function help {
+    echo -e "\e[7m\e[31mYou need choose a Servername.\e[0m\e[0m"
+    echo "If you not choose a document root, your will be /var/www/SERVERNAME."
+    echo "usage: sudo dev"
+}
+
+if [ "$1" == 'help' ] || [ "$1" == '-h' ]; then
+    help
+else
+	choice "Choice your servername: "
+		if [ -n "$CHOICE" ]; then
+			SERVERNAME="$CHOICE"
+		else
+    		SERVERNAME=""
+		fi
+
+	choice "Choice your Document Root or Press Enter: "
+		if [ -n "$CHOICE" ]; then
+			ROOT="$SERVERNAME/$CHOICE"
+		else
+			ROOT="$SERVERNAME"
+		fi
+
+	if [ "$SERVERNAME" == '' ]; then
+		help
+	else
+		VHOSTDIR="/etc/apache2/sites-available/"
+		EXTENSION=""
+		RESTARTCMD="/usr/bin/sudo service apache2 reload"
+
+VHOST=$(cat <<EOF
+<VirtualHost *:80>
+    ServerName $SERVERNAME
+    DocumentRoot /var/www/$ROOT
+    SetEnv APPLICATION_ENV "development"
+
+    <Directory /var/www/$ROOT>
+        DirectoryIndex index.php
+        AllowOverride All
+        Order allow,deny
+        Allow from all
+    </Directory>
+</VirtualHost>
+EOF
+)
+
+		if [ ! -f "$VHOSTDIR$SERVERNAME" ]; then
+    		echo "${VHOST}" > $SERVERNAME
+    		mv "$SERVERNAME" "$VHOSTDIR"
+    		echo "created $VHOSTDIR$SERVERNAME$EXTENSION"
+  		else
+    		mv "$VHOSTDIR$SERVERNAME" "$VHOSTDIR$SERVERNAME$EXTENSION.bak"
+    		echo "${VHOST}" > /etc/apache2/sites-available/$SERVERNAME
+    		echo "created $VHOSTDIR$SERVERNAME$EXTENSION and made a backup of the existing conf"
+  		fi
+  		sudo a2ensite $SERVERNAME
+  		myHostName=$SERVERNAME
+  		echo "127.0.0.1 $myHostName" >>/etc/hosts
+  		echo "Reloading Apache"
+  		$RESTARTCMD
+  		echo "reloaded apache"
+  	fi
+fi

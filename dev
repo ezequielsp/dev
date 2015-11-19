@@ -30,7 +30,7 @@ else
 
 	choice "Choice your Document Root or Press Enter: "
 		if [ -n "$CHOICE" ]; then
-			ROOT="$SERVERNAME/$CHOICE"
+			ROOT="$CHOICE"
 		else
 			ROOT="$SERVERNAME"
 		fi
@@ -38,6 +38,10 @@ else
 	if [ "$SERVERNAME" == '' ]; then
 		help
 	else
+		if [ ! -d "/var/www/$ROOT" ]; then
+    			mkdir "/var/www/$ROOT"
+  		fi
+  		
 		VHOSTDIR="/etc/apache2/sites-available/"
 		EXTENSION=""
 		RESTARTCMD="/usr/bin/sudo service apache2 reload"

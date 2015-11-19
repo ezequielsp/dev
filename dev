@@ -41,6 +41,7 @@ else
 		if [ ! -d "/var/www/$ROOT" ]; then
     			mkdir "/var/www/$ROOT"
   		fi
+  		cd "/var/www/$ROOT"
   		
 		VHOSTDIR="/etc/apache2/sites-available/"
 		EXTENSION=""

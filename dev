@@ -23,9 +23,9 @@ if [ "$1" == 'help' ] || [ "$1" == '-h' ]; then
 else
 	choice "Choice your servername: "
 		if [ -n "$CHOICE" ]; then
-			SERVERNAME="$CHOICE"
+			 SERVERNAME="$CHOICE"
 		else
-    		SERVERNAME=""
+    	 SERVERNAME=""
 		fi
 
 	choice "Choice your Document Root or Press Enter: "
@@ -39,16 +39,17 @@ else
 		help
 	else
 		if [ ! -d "/var/www/$ROOT" ]; then
-    			mkdir "/var/www/$ROOT"
-  		fi
-  		cd "/var/www/$ROOT"
+    		mkdir "/var/www/$ROOT"
+  	fi
+  	
+    cd "/var/www/$ROOT"
   		
 		VHOSTDIR="/etc/apache2/sites-available/"
-		EXTENSION=""
+		EXTENSION=".conf"
 		RESTARTCMD="/usr/bin/sudo service apache2 reload"
 
 VHOST=$(cat <<EOF
-<VirtualHost *:80>
+<VirtualHost *:80>i
     ServerName $SERVERNAME
     DocumentRoot /var/www/$ROOT
     SetEnv APPLICATION_ENV "development"
@@ -64,12 +65,12 @@ EOF
 )
 
 		if [ ! -f "$VHOSTDIR$SERVERNAME" ]; then
-    		echo "${VHOST}" > $SERVERNAME
-    		mv "$SERVERNAME" "$VHOSTDIR"
+    		echo "${VHOST}" > $SERVERNAME$EXTENSION
+    		mv "$SERVERNAME$EXTENSION" "$VHOSTDIR"
     		echo "created $VHOSTDIR$SERVERNAME$EXTENSION"
   		else
-    		mv "$VHOSTDIR$SERVERNAME" "$VHOSTDIR$SERVERNAME$EXTENSION.bak"
-    		echo "${VHOST}" > /etc/apache2/sites-available/$SERVERNAME
+    		mv "$VHOSTDIR$SERVERNAME$EXTENSION" "$VHOSTDIR$SERVERNAME$EXTENSION.bak"
+    		echo "${VHOST}" > /etc/apache2/sites-available/$SERVERNAME$EXTENSION
     		echo "created $VHOSTDIR$SERVERNAME$EXTENSION and made a backup of the existing conf"
   		fi
   		sudo a2ensite $SERVERNAME

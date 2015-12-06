@@ -73,7 +73,7 @@ EOF
     		echo "${VHOST}" > /etc/apache2/sites-available/$SERVERNAME$EXTENSION
     		echo "created $VHOSTDIR$SERVERNAME$EXTENSION and made a backup of the existing conf"
   		fi
-  		sudo a2ensite $SERVERNAME
+  		sudo a2ensite $SERVERNAME$EXTENSION
   		myHostName=$SERVERNAME
   		echo "127.0.0.1 $myHostName" >>/etc/hosts
   		echo "Reloading Apache"
